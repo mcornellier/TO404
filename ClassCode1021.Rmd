@@ -1,0 +1,152 @@
+---
+title: "Class Code for 1021"
+author: "Maxwell Cornellier"
+date: "10/21/2020"
+output: 
+  html_document:  
+    number_sections: true
+    toc: true
+    toc_float: true
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+## Import Data
+
+First thing we will do is to **import data**
+
+```{r, cache=TRUE}
+# Using read.csv for reading the csv file
+nyc <- read.csv("nycflights.csv")
+
+# Now we will explore this data
+str(nyc)
+head(nyc)
+tail(nyc)
+
+```
+
+## Clean Data
+
+We Will now need to clean this data.
+
+```{r}
+# Delete the column named "X"
+nyc$X <- NULL
+
+# Recode columns as factors as needed
+nyc$carrier <- as.factor(nyc$carrier)
+nyc$flight <- as.factor(nyc$flight)
+nyc$tailnum <- as.factor(nyc$tailnum)
+nyc$origin <- as.factor(nyc$origin)
+nyc$dest <- as.factor(nyc$dest)
+
+# Re-check summary and str
+
+str(nyc)
+summary(nyc)
+```
+
+# Calculate Intersting Metrics 
+
+```{r}
+#Average departure delay
+mean(nyc$dep_delay, na.rm = TRUE)
+#Average air-time
+mean(nyc$air_time, na.rm = TRUE)
+# Standard Deviation
+sd(nyc$air_time, na.rm = TRUE)
+
+# Which origin airport has the most flights
+```
+
+# Data Exploration
+
+## Slice and Dice Data - Filter
+
+> Logical Indexing 
+
+
+```{r}
+nyc[ 3 , 5 ]
+
+nyc[2:10,3]
+
+nyc[1453:1525,"arr_delay"]
+
+nyc[1453:1525,c("dep_delay" , "arr_delay")]
+
+```
+
+## Complicated Logical Indexing 
+
+## How many flights from LGA to DTW in 2013 
+
+```{r}
+lga2dtw <- nyc[nyc$origin == "LGA" & nyc$dest == "DTW" ,]
+nrow(lga2dtw)
+```
+
+### Random Sampling 
+
+```{r}
+nyc[sample(1:nrow(nyc),5), ]
+```
+
+### Example: All flights delayed by more than 60 min
+
+```{r}
+nyc60min <- nyc[nyc$dep_delay >= 60 & nyc$carrier == "DL", ]
+nrow(nyc60min)
+```
+
+### Example 2: All flights more than 100 miles 
+
+```{r}
+nyc1000miles<-nyc[nyc$distance >= 1000,]
+nrow(nyc1000miles)
+```
+
+## Sorting Data
+
+```{r}
+head(nyc[order(nyc$arr_delay, decreasing = T), ])
+```
+
+# Average Arrival Delay 
+```{r}
+# Use function tapply 
+
+arr_delay_by_airline <- round(tapply(nyc$arr_delay, nyc$carrier,mean,na.rm = T),2)
+
+barplot(arr_delay_by_airline)
+```
+
+## Sorted barplot
+
+```{r}
+
+barplot(sort(arr_delay_by_airline, decreasing = T))
+```
+
+## Highest Average Arrival Delay 
+
+```{r}
+
+max_delay_airlines <- names(arr_delay_by_airline[arr_delay_by_airline == max(arr_delay_by_airline)])
+
+
+```
+
+
+
+## Inline R Code 
+
+The airline with the highest average arrival delay is: `r max_delay_airlines`
+
+
